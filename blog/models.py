@@ -5,6 +5,11 @@ from django.contrib.auth.models import User
 # data model for blog posts
 
 
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=Post.Status.PUBLISHED)
+
+
 class Post(models.Model):
     """
     title = field for the post title (CharField which is VARCHAR column in the SQL database)
@@ -32,6 +37,8 @@ class Post(models.Model):
         Enumeration class defines a status of the post to allow saving a draft post before publication.
         DRAFT - not published, saved post
         PUBLISHED - published post
+        objects - the default manager
+        published - our custom manager
         """
 
         DRAFT = 'DF', 'Draft'
@@ -50,6 +57,9 @@ class Post(models.Model):
                               choices=Status.choices,
                               default=Status.DRAFT)
 
+    objects = models.Manager()
+    published = PublishedManager()
+
     class Meta:
         """
         Class defines metadata for the model.
@@ -65,4 +75,5 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
 
